@@ -2,7 +2,7 @@
 # floor_odom
 # Stereo odometry from a downward-facing stereo camera on a vehicle
 # Alankar Kotwal <alankarkotwal13@gmail.com>
-# Created June 8, edited June 8
+# Created June 8, 2015 || Edited July 3, 2015
 ##############################################################################
 
 cmake_minimum_required(VERSION 2.8.3)
