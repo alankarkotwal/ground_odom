@@ -1,0 +1,27 @@
+<!------------------------------------------------------------------------
+- floor_odom
+- Stereo odometry from a downward-facing stereo camera on a vehicle
+- Alankar Kotwal <alankarkotwal13@gmail.com>
+- Created June 8, edited June 10
+------------------------------------------------------------------------->
+
+<launch>
+
+	<!-- 
+		Launch the floor_odom node
+	-->
+	<node pkg="floor_odom" name="floor_odom" type="floor_odom" output="screen" required="true" />
+
+	<!-- 
+		Launch the stereo processing node with the camera driver
+		and stereo_image_proc
+	-->
+	<include file="$(find duo3d_ros)/launch/duo-stereo.launch" />
+	
+	<!-- 
+		Use RViz for visualisation if the passed argument 'viz'
+		says so <add this later>
+	-->
+	<!-- <node pkg="rviz" name="rviz" type="rviz" required="true" /> -->
+
+</launch>

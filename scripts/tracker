@@ -1,0 +1,3 @@
+#!/bin/bash
+
+rosrun floor_odom tracker

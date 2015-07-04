@@ -1,0 +1,3 @@
+#!/bin/bash
+
+roslaunch floor_odom floor.launch

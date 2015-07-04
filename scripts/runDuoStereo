@@ -1,0 +1,3 @@
+#!/bin/bash
+
+roslaunch duo3d_ros duo-stereo.launch

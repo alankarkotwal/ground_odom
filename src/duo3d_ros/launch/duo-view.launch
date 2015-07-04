@@ -1,0 +1,5 @@
+<!-- -->
+<launch>
+	<node name="camdriver" pkg="duo3d_ros" type="duo_node" />
+	<node name="view" pkg="image_view" type="stereo_view" args="stereo:=/duo3d_camera" output="screen" />
+</launch>

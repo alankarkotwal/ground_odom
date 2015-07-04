@@ -1,0 +1,19 @@
+tracker:
+  run_config:
+    find_pitch_roll: false
+  camera_params:
+    resize_factor: 0.5
+    focal_length: 0.002
+    stereo_baseline: 0.03
+    pix_res: 0.000006
+  depth_params:
+    crop_fraction: 0.5
+    overlap: 0.0
+    step_fraction: 0.33
+    sac_threshold: 1.0
+  position_params:
+    crop_fraction: 0.5
+    overlap: 0.0
+    step_fraction: 0.33
+  display:
+    show_images: false

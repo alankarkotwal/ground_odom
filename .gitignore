@@ -1,3 +1,7 @@
+# devel and build spaces
+devel/
+build/
+
 # Compiled Object files
 *.slo
 *.lo
