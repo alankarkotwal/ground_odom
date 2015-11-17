@@ -10,10 +10,10 @@ tracker:
     crop_fraction: 0.5
     overlap: 0.0
     step_fraction: 0.33
-    sac_threshold: 1.0
+    sac_threshold: 0.1
   position_params:
     crop_fraction: 0.5
     overlap: 0.0
-    step_fraction: 0.33
+    step_fraction: 1
   display:
-    show_images: false
+    show_images: true

@@ -2,7 +2,7 @@
 # floor_odom
 # Stereo odometry from a downward-facing stereo camera on a vehicle
 # Alankar Kotwal <alankarkotwal13@gmail.com>
-# Created June 8, 2015 || Edited July 3, 2015
+# Created June 8, edited June 8
 ##############################################################################
 
 cmake_minimum_required(VERSION 2.8.3)
@@ -12,7 +12,6 @@ project(ground_odom)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
-  duo3d_ros
   image_transport
   cv_bridge
 )

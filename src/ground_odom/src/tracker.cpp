@@ -1,5 +1,5 @@
 /************************************************************************\
-* ground_tracker							 *
+* ground_odom tracker							 *
 * Stereo odometry from a downward-facing stereo camera on a vehicle	 *
 * Alankar Kotwal <alankarkotwal13@gmail.com>				 *
 * Created June 8, 2015 || Edited July 3, 2015				 *
@@ -21,6 +21,7 @@
 #include <visp/vpImage.h>
 #include <visp/vpImageConvert.h>
 #include <visp/vpTemplateTrackerSSDInverseCompositional.h>
+#include <visp/vpTemplateTrackerZNCCInverseCompositional.h>
 #include <visp/vpTemplateTrackerWarpSRT.h>
 #include <visp/vpTemplateTrackerWarpTranslation.h>
 #include <pcl/point_cloud.h>
@@ -69,7 +70,7 @@ double image_resize_fraction, focal_length, baseline, pix_res, depth_crop_fracti
 vpTemplateTrackerWarpTranslation depthWarp;
 vpTemplateTrackerSSDInverseCompositional depthTracker(&depthWarp);
 vpTemplateTrackerWarpSRT odomWarp;
-vpTemplateTrackerSSDInverseCompositional odomTracker(&odomWarp);
+vpTemplateTrackerZNCCInverseCompositional odomTracker(&odomWarp);
 std::vector<vpImagePoint> v_ip;
 
 /*
@@ -78,7 +79,7 @@ std::vector<vpImagePoint> v_ip;
 int depth_start_x, depth_start_y, depth_n_x, depth_n_y, depth_step_x, depth_step_y, depth_block_width, depth_block_height;
 
 /*
-	Position stuff
+	Position stuff, do this
 */
 //int depth_start_x, depth_start_y, depth_n_x, depth_n_y, depth_step_x, depth_step_y;
 
@@ -141,7 +142,6 @@ void updateDepth() {
 
 		for(int j=0; j<depth_n_y; j++) {
 
-
 			/*
 				Track the relevent patch
 			*/
@@ -151,7 +151,7 @@ void updateDepth() {
 			ip.set_ij(depth_start_x+i*depth_step_x, depth_start_y+j*depth_step_y); v_ip.push_back(ip); // Top left
 			ip.set_ij(depth_start_x+i*depth_step_x+depth_block_width, depth_start_y+j*depth_step_y); v_ip.push_back(ip); // Top right
 			ip.set_ij(depth_start_x+i*depth_step_x, depth_start_y+j*depth_step_y+depth_block_height); v_ip.push_back(ip);
-			ip.set_ij(depth_start_x+i*depth_step_x+depth_block_width, depth_start_y+j*depth_step_y); v_ip.push_back(ip); // Top right
+			ip.set_ij(depth_start_x+i*depth_step_x+depth_block_width, depth_start_y+j*depth_step_y); v_ip.push_back(ip);
 			ip.set_ij(depth_start_x+i*depth_step_x, depth_start_y+j*depth_step_y+depth_block_height); v_ip.push_back(ip);
 			ip.set_ij(depth_start_x+i*depth_step_x+depth_block_width, depth_start_y+j*depth_step_y+depth_block_height); v_ip.push_back(ip);
 
@@ -172,19 +172,16 @@ void updateDepth() {
 			
 					cloud->push_back(pt);
 				}
-				else {
-					depths.push_back(dep);
-					depth = rejectOutliers(depths);
-					depths.clear();
-				}
+				
+				depths.push_back(dep);
 			}
-			catch(vpTrackingException &e) {
+			catch(vpException &e) {
 		
-				ROS_WARN("Couldn't track plane!");
+				//ROS_WARN("Couldn't track plane!");
 			}
 		}
 	}
-
+	
 	if(find_pitch_roll) {
 
 		/*
@@ -195,8 +192,14 @@ void updateDepth() {
 		seg.setInputCloud(cloud);
 		seg.segment(inliers, coefficients);
 		cloud->clear();
-		ROS_INFO("%f %f %f %f", coefficients.values[0], coefficients.values[1], coefficients.values[2], coefficients.values[3]);
+		//ROS_INFO("%f %f %f %f", coefficients.values[0], coefficients.values[1], coefficients.values[2], coefficients.values[3]);
+		//depth = coefficients.values[3]/coefficients.values[2];
 	}
+	
+	depth = rejectOutliers(depths);
+	
+	//ROS_INFO("%f", depth);
+	depths.clear();
 }
 
 void updateOdometry() {
@@ -219,7 +222,7 @@ void updateOdometry() {
 	odomTracker.track(left_visp);
 
 	vpColVector p = odomTracker.getp();
-
+	
 	/*
 		Get average yaw for x and y updates, and update yaw
 	*/
@@ -235,7 +238,7 @@ void updateOdometry() {
 		Construct the ROI and the template from the previous left image
 	*/
 	cv::Rect window((float)left_image_init.cols/4, (float)left_image_init.rows/4,
-			(float)left_image_init.cols/2, (float)left_image_init.rows/2);
+					(float)left_image_init.cols/2, (float)left_image_init.rows/2);
 	cv::Mat temp_image = left_image_init(window);	
 
 	/*
@@ -253,8 +256,13 @@ void updateOdometry() {
 	double disp_x, disp_y;
 	disp_x = max.x - corrs.cols/2;
 	disp_y = max.y - corrs.rows/2;
+	//ROS_INFO("%f %f", disp_x, disp_y);
+	/*disp_x = p[2];
+	disp_y = p[3];*/
 	camera_x += depth*pix_res*(disp_x*std::cos(avgYaw) + disp_y*std::sin(avgYaw))/(image_resize_fraction*focal_length);
 	camera_y += depth*pix_res*(disp_y*std::cos(avgYaw) - disp_x*std::sin(avgYaw))/(image_resize_fraction*focal_length);
+
+	ROS_INFO("My co-ordinates are (%f, %f, %f) cm, heading %f degrees.", 100*camera_x, 100*camera_y, 100*depth, yaw);
 
 	/*
 		Publish my findings
@@ -293,7 +301,7 @@ void leftImageCb(const sensor_msgs::ImageConstPtr& msg) {
 	try {
 		cv_ptr = cv_bridge::toCvCopy(msg, sensor_msgs::image_encodings::BGR8);
 	}
-	catch (cv_bridge::Exception& e) {
+	catch(cv_bridge::Exception& e) {
 		ROS_ERROR("cv_bridge exception: %s", e.what());
 		return;
 	}
@@ -471,10 +479,6 @@ int main(int argc, char** argv) {
 	seg.setModelType(pcl::SACMODEL_PLANE);
 	seg.setMethodType(pcl::SAC_RANSAC);
 	seg.setDistanceThreshold(sac_threshold);
-	
-	left_image = cv::imread("/home/aloo/left0000.jpg");
-	right_image = cv::imread("/home/aloo/right0000.jpg");
-	updateDepth();
 	
 	/*
 		ROS main thread

@@ -1,5 +1,0 @@
-<!-- -->
-<launch>
-	<node name="calib" pkg="camera_calibration" type="cameracalibrator.py" output="screen" args="--size 9x6 --square 0.10056 right:=/duo3d_camera/right/image_raw left:=/duo3d_camera/left/image_raw right_camera:=/duo3d_camera/right left_camera:=/duo3d_camera/left" />
-	<node name="camdriver" pkg="duo3d_ros" type="duo_node" />	
-</launch>

@@ -1,0 +1,66 @@
+/************************************************************************\
+* ground_odom								 *
+* Stereo odometry from a downward-facing stereo camera on a vehicle 	 *
+* Alankar Kotwal <alankarkotwal13@gmail.com>				 *
+* Created June 8, 2015 || Edited July 7, 2015				 *
+\************************************************************************/
+
+What is this?
+-------------
+A tracking system for a downward-facing stereo camera. Still in its 
+primary stages of development.
+
+Dependencies
+------------
+You need the following dependencies to run the code:
+* ROS code libraries (tested on Indigo)
+* image_pipeline ROS package (already installed if you're running the 
+  desktop-full versions)
+* The OpenCV library (install using libopencv-dev)
+* The Visual Servoing Platform (install using ros-<version>-visp-*)
+
+Compiling
+---------
+Just like a standard ROS package. Clone into a workspace and hit catkin_make
+
+Configuration
+-------------
+There's a sample config file in $(find floor_odom)/config. Its contents 
+are the parameters the code needs.
+
+tracker:
+  run_config:
+    find_pitch_roll: true/false, if you want to use images to find pitch/roll
+  camera_params:
+    namespace: your camera's namespace: /<namespace>/left/image_rect and so on
+    resize_factor: how much to downsample the image (makes faster and more inaccurate)
+    focal_length: your camera's focal length, obtained from calibration
+    stereo_baseline: your stereo baseline, obtained from calibration
+    pix_res: your pixel resolution, obtained from calibration
+  depth_params:
+    crop_fraction: how much of the image (from the center) to consider for depth estimation
+    step_fraction: block size as a fraction of the above
+    overlap: overlap between blocks as a fraction of the block size
+    sac_threshold: if you're finding pitch/roll, RANSAC distance threshold
+  position_params:
+    crop_fraction: how much of the image (from the center) to consider for position estimation
+    step_fraction: block size as a fraction of the above
+    overlap: overlap between blocks as a fraction of the block size
+  display:
+    show_images: self-explanatory
+    
+The position parameters are unimplemented as of now. We track the center half of the image
+as of now.
+
+Running
+-------
+There's a launchfile floor.launch that takes default.yaml. To write your
+own launchfile make sure you include your configuration file and the tracker
+node. Of course, your stereo camera ROS driver too.
+
+You get odometry data on /tracker/x, /tracker/y, /tracker/yaw and so on.
+Check `rostopic list` for all the advertised topics
+
+Contact
+-------
+Alankar Kotwal <alankarkotwal13@gmail.com>

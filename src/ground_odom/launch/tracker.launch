@@ -1,5 +1,0 @@
-<launch>
-	<!--<include file="$(find duo3d_ros)/launch/duo-stereo.launch" />-->
-	<rosparam command="load" file="$(find floor_odom)/config/default.yaml" />
-	<!--<node pkg="floor_odom" name="tracker" type="tracker" output="screen" required="true" />-->
-</launch>
